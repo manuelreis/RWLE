@@ -46,13 +46,13 @@ DESTDIR =
 # Building configuration
 CC = gcc
 CXX = g++
-CPPFLAGS = -mhtm -I. -I$(INCLUDEDIR) -I/home/shady/include -I/usr/local/include -DNDEBUG -D_GNU_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D__EXTENSIONS__ -D_MYZLIB -D_MYBIGEND -D_MYGCCATOMIC \
+CPPFLAGS = -mrtm -I. -I$(INCLUDEDIR)  -I/usr/local/include -DNDEBUG -D_GNU_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D_REENTRANT -D__EXTENSIONS__ -D_MYZLIB -D_MYBIGEND -D_MYGCCATOMIC \
   -D_KC_PREFIX="\"$(prefix)\"" -D_KC_INCLUDEDIR="\"$(INCLUDEDIR)\"" \
   -D_KC_LIBDIR="\"$(LIBDIR)\"" -D_KC_BINDIR="\"$(BINDIR)\"" -D_KC_LIBEXECDIR="\"$(LIBEXECDIR)\"" \
   -D_KC_APPINC="\"-I$(INCLUDEDIR)\"" -D_KC_APPLIBS="\"-L$(LIBDIR) -lkyotocabinet -lz -lstdc++ -lrt -lpthread -lm -lc \""
 CFLAGS = -m64 -g -O2 -Wall -ansi -pedantic -fPIC -fsigned-char -O2 $(HTM_RETRIES) $(RETRY_POLICY)
 CXXFLAGS = -m64 -g -O2 -Wall -fPIC -fsigned-char -O2 $(HTM_RETRIES) $(RETRY_POLICY)
-LDFLAGS = -L. -L$(LIBDIR) -L/home/shady/lib -L/usr/local/lib
+LDFLAGS = -L. -L$(LIBDIR) -L/usr/local/lib
 CMDLDFLAGS = 
 LIBS = -lz -lstdc++ -lrt -lpthread -lm -lc 
 LDENV = LD_RUN_PATH=/lib:/usr/lib:$(LIBDIR):$(HOME)/lib:/usr/local/lib:$(LIBDIR)

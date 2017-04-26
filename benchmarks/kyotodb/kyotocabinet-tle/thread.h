@@ -82,7 +82,7 @@ typedef struct padded_scalar {
 typedef struct padded_statistics {
     unsigned long commits;
     unsigned long aborts;
-    //TODO(mreis): Confirm with Shady is ok to add this field.
+    /* TODO(mreis): Confirm with Shady is ok to add this field. */
     unsigned long commits_with_lock;
     char suffixPadding[CACHE_LINE_SIZE];
 } __attribute__((aligned(CACHE_LINE_SIZE))) padded_statistics_t;
@@ -95,7 +95,7 @@ extern __attribute__((aligned(CACHE_LINE_SIZE))) padded_scalar_t single_global_l
 
 #include <pthread.h>
 #include <stdlib.h>
-#include "types.h"
+/*#include "types.h"*/
 
 #ifdef __cplusplus
 extern "C" {

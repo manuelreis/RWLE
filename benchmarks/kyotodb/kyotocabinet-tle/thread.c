@@ -87,7 +87,7 @@ __thread unsigned int thread_id;
 #include <stdlib.h>
 #include <sched.h>
 #include <unistd.h>
-#include "types.h"
+/*#include "types.h"*/
 #include "random.h"
 #include "rapl.h"
 

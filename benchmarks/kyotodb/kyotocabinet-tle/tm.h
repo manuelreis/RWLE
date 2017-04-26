@@ -26,7 +26,7 @@
 #  include <assert.h>
 #  include "memory.h"
 #  include "thread.h"
-#  include "types.h"
+//#  include "types.h"
 #  include <math.h>
 
 #  define TM_ARG                        /* nothing */
@@ -85,7 +85,6 @@ extern __thread int local_thread_id;
 # define SPEND_BUDGET(b)	if(RETRY_POLICY == 0) (*b)=0; else if (RETRY_POLICY == 2) (*b)=(*b)/2; else (*b)=--(*b);
 
 # define TM_BEGIN(mutex) { \
-        int tries = HTM_RETRIES; \
         while (1) { \
             while (IS_LOCKED(*mutex)) { \
                 __asm__ ( "pause;"); \
@@ -98,13 +97,13 @@ extern __thread int local_thread_id;
             	break; \
             } \
             else if (status == _XABORT_CAPACITY) { \
-                SPEND_BUDGET(&tries); \
+                SPEND_BUDGET(&htm_budget); \
             } \
             else { \
-                tries--; \
+                htm_budget--; \
             } \
             statistics_array[local_thread_id].aborts++; \
-            if (tries <= 0) {   \
+            if (htm_budget <= 0) {   \
             	while (::pthread_mutex_lock(mutex) != 0) { \
                         __asm__ ("pause;"); \
                 } \
@@ -115,8 +114,8 @@ extern __thread int local_thread_id;
 
 
 # define TM_END(mutex){ \
-    if (tries > 0) { \
-        _xend();
+    if (htm_budget > 0) { \
+        _xend(); \
         statistics_array[local_thread_id].commits++; \
     } else {    \
         ::pthread_mutex_unlock(mutex); \

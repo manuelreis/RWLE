@@ -17,7 +17,7 @@
 #include "cmdcommon.h"
 
 #include "tm.h"
-#include "tm_herwl.h"
+//#include "tm_herwl.h"
 
 int global_num_threads;
 __thread int local_thread_id;
@@ -27,7 +27,7 @@ __thread int htm_budget;
 __thread int rot_budget;
 __thread int tle_budget;
 __attribute__((aligned(CACHE_LINE_SIZE))) padded_statistics_t stats_array[80];
-__attribute__((aligned(CACHE_LINE_SIZE))) herwl_padded_statistics_t herwl_stats_array[80];
+//__attribute__((aligned(CACHE_LINE_SIZE))) herwl_padded_statistics_t herwl_stats_array[80];
 
 // global variables
 const char* g_progname;                  // program name
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     oprintf("\n\n");
   }
   TM_SHUTDOWN();
-  TM_SHUTDOWN_HERWL();
+  //TM_SHUTDOWN_HERWL();
   return rv;
 }
 

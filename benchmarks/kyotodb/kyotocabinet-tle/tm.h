@@ -24,9 +24,6 @@
 #  define P_MEMORY_SHUTDOWN()           /* nothing */
 
 #  include <assert.h>
-#  include "memory.h"
-#  include "thread.h"
-//#  include "types.h"
 #  include <math.h>
 
 #  define TM_ARG                        /* nothing */
@@ -60,6 +57,19 @@
 #  include <immintrin.h>
 #  include <rtmintrin.h>
 
+# define CACHE_LINE_SIZE 64
+
+typedef struct padded_statistics {
+    unsigned long commits;
+    unsigned long aborts;
+    /* TODO(mreis): Confirm with Shady is ok to add this field. */
+    unsigned long commits_with_lock;
+    char suffixPadding[CACHE_LINE_SIZE];
+} __attribute__((aligned(CACHE_LINE_SIZE))) padded_statistics_t;
+
+extern __attribute__((aligned(CACHE_LINE_SIZE))) padded_statistics_t stats_array[];
+
+
 extern __thread int local_thread_id;
 
 #  define TM_STARTUP(numThread, bId)
@@ -69,10 +79,10 @@ extern __thread int local_thread_id;
         unsigned long commits_with_lock = 0; \
         int i = 0; \
         for (; i < 128; i++) { \
-            if (statistics_array[i].commits + statistics_array[i].commits_with_lock == 0) { break; } \
-                commits += statistics_array[i].commits; \
-                aborts += statistics_array[i].aborts; \
-                commits_with_lock += statistics_array[i].commits_with_lock; \
+            if (stats_array[i].commits + stats_array[i].commits_with_lock == 0) { break; } \
+                commits += stats_array[i].commits; \
+                aborts += stats_array[i].aborts; \
+                commits_with_lock += stats_array[i].commits_with_lock; \
             } \
         printf("TM commits: %lu\nTotal aborts: %lu\nTotal Lock Commits: %lu\n", commits, aborts, commits_with_lock); \
 }
@@ -102,7 +112,7 @@ extern __thread int local_thread_id;
             else { \
                 htm_budget--; \
             } \
-            statistics_array[local_thread_id].aborts++; \
+            stats_array[local_thread_id].aborts++; \
             if (htm_budget <= 0) {   \
             	while (::pthread_mutex_lock(mutex) != 0) { \
                         __asm__ ("pause;"); \
@@ -116,10 +126,10 @@ extern __thread int local_thread_id;
 # define TM_END(mutex){ \
     if (htm_budget > 0) { \
         _xend(); \
-        statistics_array[local_thread_id].commits++; \
+        stats_array[local_thread_id].commits++; \
     } else {    \
         ::pthread_mutex_unlock(mutex); \
-        statistics_array[local_thread_id].commits_with_lock++; \
+        stats_array[local_thread_id].commits_with_lock++; \
     } \
 };
 

@@ -95,7 +95,7 @@ extern __thread int local_thread_id;
                 capacity_aborts += stats_array[i].capacity_aborts; \
                 other_aborts += stats_array[i].other_aborts; \
             } \
-        printf("TM commits: %lu\nTotal aborts: %lu\nTotal Lock Commits: %lu\nExplicit Aborts: %lu\nConflict Aborts: %lu\nCapacity Aborts: %lu\n Other Aborts: %lu\n", commits, aborts, commits_with_lock, explicit_aborts, conflict_aborts, capacity_aborts, others_aborts); \
+        printf("TM commits: %lu\nTotal aborts: %lu\nTotal Lock Commits: %lu\nExplicit Aborts: %lu\nConflict Aborts: %lu\nCapacity Aborts: %lu\n Other Aborts: %lu\n", commits, aborts, commits_with_lock, explicit_aborts, conflict_aborts, capacity_aborts, other_aborts); \
 }
 
 #  define TM_THREAD_ENTER()
@@ -118,18 +118,18 @@ extern __thread int local_thread_id;
             	break; \
             } \
             else if (status == _XABORT_CAPACITY) { \
-                stats_array[local_thread_id].capacity_aborts++:\
+                stats_array[local_thread_id].capacity_aborts++;\
                 SPEND_BUDGET(&htm_budget); \
-            } \
-            else { \
+            } else \
+	    { \
                 if (status & _XABORT_CONFLICT) {\
                         stats_array[local_thread_id].conflict_aborts++;\
-                
+                }\
                 else if (status & _XABORT_EXPLICIT) {\
                         stats_array[local_thread_id].explicit_aborts++;\
                 }\
                 else {\
-                        stats_array[local_thread_id].others_aborts++;\
+                        stats_array[local_thread_id].other_aborts++;\
                 }\
                 htm_budget--; \
             } \

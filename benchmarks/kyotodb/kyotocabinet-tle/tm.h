@@ -78,7 +78,7 @@ extern __thread int local_thread_id;
         unsigned long aborts = 0; \
         unsigned long commits_with_lock = 0; \
         int i = 0; \
-        for (; i < 128; i++) { \
+        for (; i < 80; i++) { \
             if (stats_array[i].commits + stats_array[i].commits_with_lock == 0) { break; } \
                 commits += stats_array[i].commits; \
                 aborts += stats_array[i].aborts; \

@@ -13,7 +13,6 @@ mkdir $resultsdir/summary
 echo $3 > $resultsdir/desc.txt
 fi
 
-export "LD_LIBRARY_PATH=/home/mreis/RWLE-mreis/benchmarks/kyotodb/kyotocabinet-intel"
 
 backends[1]="intel"
 backends[2]="orig"
@@ -48,9 +47,11 @@ do
 		for r in $rot_retries
 		do
 			cd $workspace;
-                        cd benchmarks/kyotodb
+            cd benchmarks/kyotodb
 			cd kyotocabinet-${backends[$c]}
 			make clean; make -j 8 HTM_RETRIES=-DHTM_RETRIES=$h RETRY_POLICY=-DRETRY_POLICY=$r ROT_RETRIES=-DROT_RETRIES=$r
+            
+            export "LD_LIBRARY_PATH=/home/mreis/RWLE-mreis/benchmarks/kyotodb/kyotocabinet-${backends[$c]}"
 			for b in 1
 			do
         			for t in  1 4 8 16 32 64 80

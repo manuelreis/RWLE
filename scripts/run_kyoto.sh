@@ -13,15 +13,11 @@ mkdir $resultsdir/summary
 echo $3 > $resultsdir/desc.txt
 fi
 
-export "LD_LIBRARY_PATH=/home/shady/herwl/svn/code/benchmarks/kyotodb/kyotocabinet/lib/"
+export "LD_LIBRARY_PATH=/home/mreis/RWLE-mreis/benchmarks/kyotodb/kyotocabinet-intel"
 
-backends[1]="herwl"
-backends[2]="tle"
-backends[3]="rwl"
-backends[4]="herwl-lazy"
-backends[5]="mutexes"
-backends[6]="orig"
-backends[7]="brlock"
+backends[1]="intel"
+backends[2]="orig"
+backends[3]="brlock"
 
 params[1]="-it 1 -capcnt 262487 -capsiz 29695255 1000000"
 benchmarks[1]="u5-wicked-capcnt262487-capsiz29695255-runm1000000"
@@ -46,14 +42,7 @@ for c in 7
 do
         htm_retries="0"
         rot_retries="0"
-	if [[ $c == 1 ]]; then
-		htm_retries="5"
-		rot_retries="5"
-	fi
-	if [[ $c == 2 ]]; then
-                htm_retries="5"
-                rot_retries="0"
-        fi
+
 	for h in $htm_retries
 	do
 		for r in $rot_retries
@@ -61,7 +50,7 @@ do
 			cd $workspace;
                         cd benchmarks/kyotodb
 			cd kyotocabinet-${backends[$c]}
-			make clean; make HTM_RETRIES=-DHTM_RETRIES=$h RETRY_POLICY=-DRETRY_POLICY=$r ROT_RETRIES=-DROT_RETRIES=$r; make install
+			make clean; make -j 8 HTM_RETRIES=-DHTM_RETRIES=$h RETRY_POLICY=-DRETRY_POLICY=$r ROT_RETRIES=-DROT_RETRIES=$r
 			for b in 1
 			do
         			for t in  1 4 8 16 32 64 80

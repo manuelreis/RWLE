@@ -41,10 +41,10 @@
 #  define FAST_PATH_FREE(ptr)            free(ptr)
 #  define SLOW_PATH_FREE(ptr)             free(ptr)
 
-# define SETUP_NUMBER_TASKS(n)
-# define SETUP_NUMBER_THREADS(n)
-# define PRINT_STATS()
-# define AL_LOCK(idx)
+#  define SETUP_NUMBER_TASKS(n)
+#  define SETUP_NUMBER_THREADS(n)
+#  define PRINT_STATS()
+#  define AL_LOCK(idx)
 
 #endif
 
@@ -62,8 +62,11 @@
 typedef struct padded_statistics {
     unsigned long commits;
     unsigned long aborts;
-    /* TODO(mreis): Confirm with Shady is ok to add this field. */
     unsigned long commits_with_lock;
+    unsigned long explicit_aborts;
+    unsigned long conflict_aborts;
+    unsigned long capacity_aborts;
+    unsigned long other_aborts;
     char suffixPadding[CACHE_LINE_SIZE];
 } __attribute__((aligned(CACHE_LINE_SIZE))) padded_statistics_t;
 
@@ -77,14 +80,22 @@ extern __thread int local_thread_id;
         unsigned long commits = 0; \
         unsigned long aborts = 0; \
         unsigned long commits_with_lock = 0; \
+        unsigned long explicit_aborts = 0; \
+        unsigned long conflict_aborts = 0; \
+        unsigned long capacity_aborts = 0; \
+        unsigned long other_aborts = 0; \
         int i = 0; \
         for (; i < 80; i++) { \
             if (stats_array[i].commits + stats_array[i].commits_with_lock == 0) { break; } \
                 commits += stats_array[i].commits; \
                 aborts += stats_array[i].aborts; \
                 commits_with_lock += stats_array[i].commits_with_lock; \
+                explicit_aborts += stats_array[i].explicit_aborts; \
+                conflict_aborts += stats_array[i].conflict_aborts; \
+                capacity_aborts += stats_array[i].capacity_aborts; \
+                other_aborts += stats_array[i].other_aborts; \
             } \
-        printf("TM commits: %lu\nTotal aborts: %lu\nTotal Lock Commits: %lu\n", commits, aborts, commits_with_lock); \
+        printf("TM commits: %lu\nTotal aborts: %lu\nTotal Lock Commits: %lu\nExplicit Aborts: %lu\nConflict Aborts: %lu\nCapacity Aborts: %lu\n Other Aborts: %lu\n", commits, aborts, commits_with_lock, explicit_aborts, conflict_aborts, capacity_aborts, others_aborts); \
 }
 
 #  define TM_THREAD_ENTER()
@@ -107,9 +118,19 @@ extern __thread int local_thread_id;
             	break; \
             } \
             else if (status == _XABORT_CAPACITY) { \
+                stats_array[local_thread_id].capacity_aborts++:\
                 SPEND_BUDGET(&htm_budget); \
             } \
             else { \
+                if (status & _XABORT_CONFLICT) {\
+                        stats_array[local_thread_id].conflict_aborts++;\
+                
+                else if (status & _XABORT_EXPLICIT) {\
+                        stats_array[local_thread_id].explicit_aborts++;\
+                }\
+                else {\
+                        stats_array[local_thread_id].others_aborts++;\
+                }\
                 htm_budget--; \
             } \
             stats_array[local_thread_id].aborts++; \
